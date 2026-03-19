@@ -198,10 +198,10 @@ npm run dev
 # App running on http://localhost:5173
 ```
 
-### Default Admin Account
+<!-- ### Default Admin Account
 After running seed:
 - Email: `admin@itbeat.local`
-- Password: `ChangeMe123!`
+- Password: `ChangeMe123!` -->
 
 ---
 
