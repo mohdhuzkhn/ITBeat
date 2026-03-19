@@ -1,0 +1,25 @@
+require('dotenv').config({ path: require('path').join(__dirname, '../..', '.env') });
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const authRoutes = require('./routes/auth');
+const postRoutes = require('./routes/posts');
+const adminRoutes = require('./routes/admin');
+const categoryRoutes = require('./routes/categories');
+const { errorHandler } = require('./middleware/errorHandler');
+
+const app = express();
+app.use(helmet());
+app.use(cors({ origin: process.env.FRONTEND_URL, credentials: true }));
+const limiter = rateLimit({ windowMs: 60000, max: 60, standardHeaders: true, legacyHeaders: false });
+app.use(limiter);
+app.use(express.json({ limit: '1mb' }));
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+app.use('/api/v1/auth', authRoutes);
+app.use('/api/v1/posts', postRoutes);
+app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/categories', categoryRoutes);
+app.use(errorHandler);
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => console.log(`ITBeat API running on http://localhost:${PORT}`));
