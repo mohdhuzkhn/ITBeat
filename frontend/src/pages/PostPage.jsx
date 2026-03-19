@@ -2,6 +2,8 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { postService } from '../services/api';
+import LikeButton from '../components/feed/LikeButton';
+import CommentSection from '../components/feed/CommentSection';
 import clsx from 'clsx';
 
 const CATEGORY_COLORS = {
@@ -47,26 +49,35 @@ export default function PostPage() {
       <Link to="/" className="text-sm text-blue-600 hover:underline mb-6 inline-block">
         ← Back to feed
       </Link>
+
       <article className="card p-8">
         <div className="flex items-center gap-2 mb-4">
           <span className={clsx('badge', catColor)}>{data.category}</span>
           <span className="text-xs text-gray-400">{timeAgo}</span>
         </div>
+
         <h1 className="text-2xl font-bold text-gray-900 leading-snug mb-6">
           {data.title}
         </h1>
+
         <p className="text-gray-700 leading-relaxed whitespace-pre-wrap mb-8">
           {data.body}
         </p>
-        <div className="border-t border-gray-100 pt-5 flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold uppercase text-sm">
-            {data.username?.[0]}
+
+        <div className="flex items-center justify-between border-t border-gray-100 pt-5">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold uppercase text-sm">
+              {data.username?.[0]}
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-800">{data.username}</p>
+              <p className="text-xs text-gray-400">Posted {timeAgo}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-sm font-medium text-gray-800">{data.username}</p>
-            <p className="text-xs text-gray-400">Posted {timeAgo}</p>
-          </div>
+          <LikeButton postId={id} />
         </div>
+
+        <CommentSection postId={id} />
       </article>
     </div>
   );

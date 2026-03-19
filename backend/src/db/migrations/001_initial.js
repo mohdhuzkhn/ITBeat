@@ -1,5 +1,7 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../../../..', '.env') });
-const { Pool } = require('pg');
+require("dotenv").config({
+  path: require("path").join(__dirname, "../../../..", ".env"),
+});
+const { Pool } = require("pg");
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
 const migrations = `
@@ -67,11 +69,59 @@ CREATE TRIGGER trg_promote_trusted
 async function migrate() {
   const client = await pool.connect();
   try {
-    console.log('Running migrations...');
+    console.log("Running migrations...");
     await client.query(migrations);
-    console.log('Migrations complete.');
+    console.log("Migrations complete.");
   } catch (err) {
-    console.error('Migration failed:', err.message);
+    console.error("Migration failed:", err.message);
+    process.exit(1);
+  } finally {
+    client.release();
+    // await pool.end();
+  }
+}
+
+async function migrate2() {
+  const client = await pool.connect();
+  try {
+    console.log("Running new feature migrations...");
+    await client.query(`
+
+      CREATE TABLE IF NOT EXISTS post_likes (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id    UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+        user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        UNIQUE(post_id, user_id)
+      );
+
+      CREATE TABLE IF NOT EXISTS comments (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        post_id    UUID NOT NULL REFERENCES posts(id) ON DELETE CASCADE,
+        user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        body       TEXT NOT NULL CHECK (char_length(body) BETWEEN 1 AND 1000),
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE TABLE IF NOT EXISTS notifications (
+        id         UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+        user_id    UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+        type       TEXT NOT NULL CHECK (type IN ('like', 'comment')),
+        post_id    UUID REFERENCES posts(id) ON DELETE CASCADE,
+        actor_id   UUID REFERENCES users(id) ON DELETE CASCADE,
+        is_read    BOOLEAN NOT NULL DEFAULT FALSE,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+
+      CREATE INDEX IF NOT EXISTS idx_likes_post    ON post_likes(post_id);
+      CREATE INDEX IF NOT EXISTS idx_likes_user    ON post_likes(user_id);
+      CREATE INDEX IF NOT EXISTS idx_comments_post ON comments(post_id);
+      CREATE INDEX IF NOT EXISTS idx_notifs_user   ON notifications(user_id);
+
+    `);
+    console.log("New tables created successfully.");
+  } catch (err) {
+    console.error("Migration 2 failed:", err.message);
     process.exit(1);
   } finally {
     client.release();
@@ -79,4 +129,4 @@ async function migrate() {
   }
 }
 
-migrate();
+migrate().then(() => migrate2());

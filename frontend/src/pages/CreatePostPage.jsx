@@ -16,11 +16,11 @@ export default function CreatePostPage() {
   const mutation = useMutation({
     mutationFn: postService.create,
     onSuccess: (res) => {
-      const { post, message } = res.data;
+      const { post } = res.data;
       if (post.status === 'approved') {
         navigate(`/posts/${post.id}`);
       } else {
-        navigate('/');
+        navigate('/?submitted=true');
       }
     },
     onError: (err) => {
@@ -54,11 +54,20 @@ export default function CreatePostPage() {
           </div>
         )}
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-          <input name="title" required className="input" placeholder="e.g. GPT-5 announced with new reasoning capabilities" />
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Title
+          </label>
+          <input
+            name="title"
+            required
+            className="input"
+            placeholder="e.g. GPT-5 announced with new reasoning capabilities"
+          />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Category
+          </label>
           <select name="category_id" required className="input">
             <option value="">Select a category</option>
             {categories.map((c) => (
@@ -67,7 +76,9 @@ export default function CreatePostPage() {
           </select>
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Content</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Content
+          </label>
           <textarea
             name="body"
             required
@@ -77,10 +88,18 @@ export default function CreatePostPage() {
           />
         </div>
         <div className="flex justify-end gap-3 pt-2">
-          <button type="button" className="btn-ghost" onClick={() => navigate(-1)}>
+          <button
+            type="button"
+            className="btn-ghost"
+            onClick={() => navigate(-1)}
+          >
             Cancel
           </button>
-          <button type="submit" className="btn-primary" disabled={mutation.isPending}>
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={mutation.isPending}
+          >
             {mutation.isPending ? 'Submitting...' : 'Submit post'}
           </button>
         </div>

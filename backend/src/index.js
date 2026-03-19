@@ -8,6 +8,9 @@ const postRoutes = require('./routes/posts');
 const adminRoutes = require('./routes/admin');
 const categoryRoutes = require('./routes/categories');
 const { errorHandler } = require('./middleware/errorHandler');
+const likesRoutes = require('./routes/likes');
+const commentsRoutes = require('./routes/comments');
+const notificationsRoutes = require('./routes/notifications');
 
 const app = express();
 app.use(helmet());
@@ -21,5 +24,8 @@ app.use('/api/v1/posts', postRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/categories', categoryRoutes);
 app.use(errorHandler);
+app.use('/api/v1/posts', likesRoutes);
+app.use('/api/v1/posts', commentsRoutes);
+app.use('/api/v1/notifications', notificationsRoutes);
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => console.log(`ITBeat API running on http://localhost:${PORT}`));

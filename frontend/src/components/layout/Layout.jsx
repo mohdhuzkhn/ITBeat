@@ -1,5 +1,6 @@
 import { Outlet, Link, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
+import NotificationBell from './NotificationBell';
 
 const CATEGORIES = [
   { label: 'All',        slug: '' },
@@ -46,6 +47,7 @@ export default function Layout() {
                     Queue
                   </Link>
                 )}
+                <NotificationBell />
                 <Link to="/submit" className="btn-primary">+ Submit</Link>
                 <span className="text-sm text-gray-500 hidden md:block">{user.username}</span>
                 <button onClick={handleLogout} className="btn-ghost">Logout</button>
