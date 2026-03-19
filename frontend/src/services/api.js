@@ -27,6 +27,8 @@ export const adminService = {
   approvePost: (id) => api.patch(`/admin/posts/${id}/approve`),
   rejectPost:  (id) => api.patch(`/admin/posts/${id}/reject`),
   trustUser:   (id) => api.patch(`/admin/users/${id}/trust`),
+  deletePost:  (id) => api.delete(`/admin/posts/${id}`),
 };
+
 
 export default api;

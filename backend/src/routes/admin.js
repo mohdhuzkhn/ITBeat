@@ -69,4 +69,17 @@ router.patch('/users/:id/trust', requireRole('admin'), async (req, res, next) =>
   } catch (err) { next(err); }
 });
 
+
+router.delete('/posts/:id', requireRole('admin'), async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      'DELETE FROM posts WHERE id = $1 RETURNING id',
+      [req.params.id]
+    );
+    if (!rows[0]) return res.status(404).json({ error: 'Post not found.' });
+    res.json({ message: 'Post deleted.' });
+  } catch (err) { next(err); }
+});
+
+
 module.exports = router;
