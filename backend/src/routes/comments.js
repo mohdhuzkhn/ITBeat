@@ -1,10 +1,11 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../../..', '.env') });
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
 const { attachUser, requireAuth } = require('../middleware/auth');
 const { z } = require('zod');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// const { Pool } = require('pg');
+// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = require('../db/pool');
 
 const commentSchema = z.object({
   body: z.string().min(1).max(1000),

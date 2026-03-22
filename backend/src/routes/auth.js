@@ -4,8 +4,9 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { z } = require('zod');
-const { Pool } = require('pg');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// const { Pool } = require('pg');
+// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = require('../db/pool');
 
 const registerSchema = z.object({
   email:    z.string().email(),

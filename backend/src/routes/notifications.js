@@ -1,9 +1,10 @@
 require('dotenv').config({ path: require('path').join(__dirname, '../../..', '.env') });
 const express = require('express');
 const router = express.Router();
-const { Pool } = require('pg');
 const { attachUser, requireAuth } = require('../middleware/auth');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// const { Pool } = require('pg');
+// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = require('../db/pool');
 
 router.get('/', attachUser, requireAuth, async (req, res, next) => {
   try {

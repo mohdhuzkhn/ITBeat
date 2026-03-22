@@ -2,8 +2,9 @@ require('dotenv').config({ path: require('path').join(__dirname, '../../..', '.e
 const express = require('express');
 const router = express.Router();
 const { attachUser, requireAuth, requireRole } = require('../middleware/auth');
-const { Pool } = require('pg');
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+// const { Pool } = require('pg');
+// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const pool = require('../db/pool');
 
 router.use(attachUser, requireAuth, requireRole('moderator', 'admin'));
 
