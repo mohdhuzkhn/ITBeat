@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { formatDistanceToNow } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
@@ -8,6 +8,24 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const qc = useQueryClient();
   const navigate = useNavigate();
+  const ref = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (ref.current && !ref.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    if (open) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('touchstart', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('touchstart', handleClickOutside);
+    };
+  }, [open]);
 
   const { data: countData } = useQuery({
     queryKey: ['notif-count'],
@@ -43,7 +61,8 @@ export default function NotificationBell() {
   }
 
   return (
-    <div style={{ position: 'relative' }}>
+    <div ref={ref} style={{ position: 'relative' }}>
+      {/* Bell button */}
       <button
         onClick={handleOpen}
         className="btn-ghost relative"
@@ -51,55 +70,64 @@ export default function NotificationBell() {
       >
         <span style={{ fontSize: '18px' }}>🔔</span>
         {unread > 0 && (
-          <span
-            style={{
-              position: 'absolute',
-              top: '2px',
-              right: '2px',
-              background: '#ef4444',
-              color: 'white',
-              borderRadius: '999px',
-              fontSize: '10px',
-              fontWeight: '600',
-              minWidth: '16px',
-              height: '16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              padding: '0 4px',
-            }}
-          >
+          <span style={{
+            position: 'absolute',
+            top: '2px',
+            right: '2px',
+            background: '#ef4444',
+            color: 'white',
+            borderRadius: '999px',
+            fontSize: '10px',
+            fontWeight: '600',
+            minWidth: '16px',
+            height: '16px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '0 4px',
+          }}>
             {unread > 9 ? '9+' : unread}
           </span>
         )}
       </button>
 
+      {/* Dropdown panel */}
       {open && (
         <div
           className="card"
           style={{
-            position: 'absolute',
-            right: 0,
-            top: '44px',
-            width: '320px',
-            maxHeight: '400px',
+            position: 'fixed',
+            top: '56px',
+            right: '8px',
+            left: '8px',
+            maxWidth: '360px',
+            marginLeft: 'auto',
+            maxHeight: '70vh',
             overflowY: 'auto',
-            zIndex: 100,
-            boxShadow: '0 4px 24px rgba(0,0,0,0.10)',
+            zIndex: 999,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.15)',
           }}
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <span className="text-sm font-semibold text-gray-800">
               Notifications
             </span>
-            {notifications.length > 0 && (
+            <div className="flex items-center gap-3">
+              {notifications.length > 0 && (
+                <button
+                  onClick={() => markAllRead.mutate()}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  Mark all read
+                </button>
+              )}
               <button
-                onClick={() => markAllRead.mutate()}
-                className="text-xs text-blue-600 hover:underline"
+                onClick={() => setOpen(false)}
+                className="text-gray-400 hover:text-gray-600 text-lg leading-none"
               >
-                Mark all read
+                ×
               </button>
-            )}
+            </div>
           </div>
 
           {notifications.length === 0 ? (
@@ -113,8 +141,8 @@ export default function NotificationBell() {
                   new Date(n.created_at), { addSuffix: true }
                 );
                 const message = n.type === 'like'
-                  ? `liked your post`
-                  : `commented on your post`;
+                  ? 'liked your post'
+                  : 'commented on your post';
 
                 return (
                   <button
