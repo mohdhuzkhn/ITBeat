@@ -27,6 +27,7 @@ const limiter = rateLimit({
   max: 60,
   standardHeaders: true,
   legacyHeaders: false,
+  validate: { xForwardedForHeader: false },
 });
 app.use(limiter);
 app.use(express.json({ limit: "1mb" }));
