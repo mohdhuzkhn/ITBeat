@@ -34,7 +34,7 @@ export default function Layout() {
           </Link>
 
           {/* Category pills — desktop only */}
-          <nav className="hidden md:flex items-center gap-1 overflow-x-auto">
+          <nav className="hidden lg:flex items-center gap-1 overflow-x-auto">
             {CATEGORIES.map((c) => (
               <Link
                 key={c.slug}
@@ -46,8 +46,8 @@ export default function Layout() {
             ))}
           </nav>
 
-          {/* Right side — desktop */}
-          <div className="hidden md:flex items-center gap-2 shrink-0">
+          {/* Right side — desktop only */}
+          <div className="hidden lg:flex items-center gap-2 shrink-0">
             {user ? (
               <>
                 {isMod && (
@@ -57,7 +57,7 @@ export default function Layout() {
                 )}
                 <NotificationBell />
                 <Link to="/submit" className="btn-primary">+ Submit</Link>
-                <span className="text-sm text-gray-500">{user.username}</span>
+                <span className="text-sm text-gray-500 hidden lg:block">{user.username}</span>
                 <button onClick={handleLogout} className="btn-ghost">Logout</button>
               </>
             ) : (
@@ -69,43 +69,44 @@ export default function Layout() {
           </div>
 
           {/* Mobile right side */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex lg:hidden items-center gap-2">
             {user && <NotificationBell />}
             {user && (
               <Link to="/submit" className="btn-primary text-xs px-3 py-1.5">
                 + Submit
               </Link>
             )}
-            {/* Hamburger */}
+            {/* Hamburger button */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
-              className="p-2 rounded-lg hover:bg-gray-100 transition"
+              className="p-2 rounded-lg hover:bg-gray-100 transition flex flex-col justify-center gap-1"
             >
-              <div className="w-5 h-0.5 bg-gray-600 mb-1"></div>
-              <div className="w-5 h-0.5 bg-gray-600 mb-1"></div>
-              <div className="w-5 h-0.5 bg-gray-600"></div>
+              <span className="block w-5 h-0.5 bg-gray-600"></span>
+              <span className="block w-5 h-0.5 bg-gray-600"></span>
+              <span className="block w-5 h-0.5 bg-gray-600"></span>
             </button>
           </div>
         </div>
 
-        {/* Mobile menu dropdown */}
+        {/* Mobile dropdown menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-2">
+          <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-2">
 
-            {/* Categories */}
+            {/* Category pills */}
             <div className="flex gap-2 overflow-x-auto pb-2">
               {CATEGORIES.map((c) => (
                 <Link
                   key={c.slug}
                   to={c.slug ? `/?category=${c.slug}` : '/'}
                   onClick={() => setMenuOpen(false)}
-                  className="px-3 py-1 rounded-full text-sm bg-gray-50 text-gray-600 hover:bg-gray-100 whitespace-nowrap transition border border-gray-200"
+                  className="px-3 py-1 rounded-full text-sm bg-gray-50 text-gray-600 hover:bg-gray-100 whitespace-nowrap transition border border-gray-200 shrink-0"
                 >
                   {c.label}
                 </Link>
               ))}
             </div>
 
+            {/* User actions */}
             <div className="border-t border-gray-100 pt-2 space-y-1">
               {user ? (
                 <>
