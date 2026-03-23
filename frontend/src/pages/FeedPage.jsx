@@ -1,21 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
+import { useSearchParams } from "react-router-dom";
 import { postService } from "../services/api";
 import PostCard from "../components/feed/PostCard";
-import { useSearchParams, useLocation } from "react-router-dom";
-
-const CATEGORIES = [
-  { label: "All", slug: "" },
-  { label: "AI & ML", slug: "ai-ml" },
-  { label: "Web Dev", slug: "web-dev" },
-  { label: "Cloud/DevOps", slug: "cloud-devops" },
-  { label: "Hardware", slug: "hardware" },
-];
 
 export default function FeedPage() {
   const [params, setParams] = useSearchParams();
   const category = params.get("category") || "";
   const search = params.get("q") || "";
   const submitted = params.get("submitted") === "true";
+
   const { data, isLoading, isError } = useQuery({
     queryKey: ["posts", category, search],
     queryFn: () =>
@@ -50,6 +43,7 @@ export default function FeedPage() {
           </div>
         </div>
       )}
+
       <form onSubmit={handleSearch} className="mb-6 flex gap-2">
         <input
           name="q"
@@ -70,22 +64,6 @@ export default function FeedPage() {
           </button>
         )}
       </form>
-
-      <div className="flex md:hidden gap-2 overflow-x-auto pb-2 mb-6">
-        {CATEGORIES.map((c) => (
-          <button
-            key={c.slug}
-            onClick={() => setParams(c.slug ? { category: c.slug } : {})}
-            className={`px-3 py-1 rounded-full text-sm whitespace-nowrap transition ${
-              category === c.slug
-                ? "bg-blue-600 text-white"
-                : "bg-white border border-gray-200 text-gray-600"
-            }`}
-          >
-            {c.label}
-          </button>
-        ))}
-      </div>
 
       {search && (
         <p className="text-sm text-gray-500 mb-4">
