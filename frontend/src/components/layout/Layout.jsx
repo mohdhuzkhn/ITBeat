@@ -1,21 +1,35 @@
+import { useQuery } from "@tanstack/react-query";
+import api from "../../services/api";
 import { useState } from "react";
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import NotificationBell from "./NotificationBell";
 
-const CATEGORIES = [
-  { label: "All",      slug: "" },
-  { label: "AI & ML",  slug: "ai-ml" },
-  { label: "Web Dev",  slug: "web-dev" },
-  { label: "Cloud",    slug: "cloud-devops" },
-  { label: "Hardware", slug: "hardware" },
-];
+// const CATEGORIES = [
+//   { label: "All",      slug: "" },
+//   { label: "AI & ML",  slug: "ai-ml" },
+//   { label: "Web Dev",  slug: "web-dev" },
+//   { label: "Cloud",    slug: "cloud-devops" },
+//   { label: "Hardware", slug: "hardware" },
+// ];
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const isMod = user && ["moderator", "admin"].includes(user.role);
+  const { data: catData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => api.get("/categories").then((r) => r.data),
+  });
+
+  const navCategories = [
+    { label: "All", slug: "" },
+    ...(catData?.categories || []).map((c) => ({
+      label: c.name,
+      slug: c.slug,
+    })),
+  ];
 
   function handleLogout() {
     logout();
@@ -27,15 +41,17 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
-
           {/* Logo */}
-          <Link to="/" className="text-xl font-bold text-blue-600 tracking-tight shrink-0">
+          <Link
+            to="/"
+            className="text-xl font-bold text-blue-600 tracking-tight shrink-0"
+          >
             ITBeat
           </Link>
 
           {/* Category pills — desktop only */}
           <nav className="hidden md:flex items-center gap-1 overflow-x-auto shrink-0">
-            {CATEGORIES.map((c) => (
+            {navCategories.map((c) => (
               <Link
                 key={c.slug}
                 to={c.slug ? `/?category=${c.slug}` : "/"}
@@ -51,12 +67,18 @@ export default function Layout() {
             {user ? (
               <>
                 {isMod && (
-                  <Link to="/admin/queue" className="btn-ghost text-orange-600 hover:bg-orange-50 text-xs px-2 py-1">
+                  <Link
+                    to="/admin/queue"
+                    className="btn-ghost text-orange-600 hover:bg-orange-50 text-xs px-2 py-1"
+                  >
                     Queue
                   </Link>
                 )}
                 {user?.role === "admin" && (
-                  <Link to="/admin/categories" className="btn-ghost text-purple-600 hover:bg-purple-50 text-xs px-2 py-1">
+                  <Link
+                    to="/admin/categories"
+                    className="btn-ghost text-purple-600 hover:bg-purple-50 text-xs px-2 py-1"
+                  >
                     Categories
                   </Link>
                 )}
@@ -67,14 +89,24 @@ export default function Layout() {
                 <span className="text-xs text-gray-500 hidden xl:block">
                   {user.username}
                 </span>
-                <button onClick={handleLogout} className="btn-ghost text-xs px-2 py-1">
+                <button
+                  onClick={handleLogout}
+                  className="btn-ghost text-xs px-2 py-1"
+                >
                   Logout
                 </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="btn-ghost text-xs px-2 py-1">Login</Link>
-                <Link to="/register" className="btn-primary text-xs px-3 py-1.5">Sign up</Link>
+                <Link to="/login" className="btn-ghost text-xs px-2 py-1">
+                  Login
+                </Link>
+                <Link
+                  to="/register"
+                  className="btn-primary text-xs px-3 py-1.5"
+                >
+                  Sign up
+                </Link>
               </>
             )}
           </div>
@@ -102,10 +134,9 @@ export default function Layout() {
         {/* Mobile dropdown menu */}
         {menuOpen && (
           <div className="md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-2">
-
             {/* Category pills */}
             <div className="flex gap-2 overflow-x-auto pb-2">
-              {CATEGORIES.map((c) => (
+              {navCategories.map((c) => (
                 <Link
                   key={c.slug}
                   to={c.slug ? `/?category=${c.slug}` : "/"}
