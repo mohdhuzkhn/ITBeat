@@ -23,10 +23,21 @@ export default function Layout() {
     queryFn: () => api.get("/categories").then((r) => r.data),
   });
 
+  const shortLabel = (name) => {
+    const map = {
+      "AI & Machine Learning": "AI & ML",
+      "Web & App Development": "Web Dev",
+      "Cloud & DevOps": "Cloud",
+      "Hardware & Devices": "Hardware",
+      Cybersecurity: "Security",
+    };
+    return map[name] || (name.length > 8 ? name.slice(0, 8) + "…" : name);
+  };
+
   const navCategories = [
     { label: "All", slug: "" },
     ...(catData?.categories || []).map((c) => ({
-      label: c.name,
+      label: shortLabel(c.name),
       slug: c.slug,
     })),
   ];
