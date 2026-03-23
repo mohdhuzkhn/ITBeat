@@ -1,25 +1,25 @@
-import { useState } from 'react';
-import { Outlet, Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../../store/authStore';
-import NotificationBell from './NotificationBell';
+import { useState } from "react";
+import { Outlet, Link, useNavigate } from "react-router-dom";
+import { useAuthStore } from "../../store/authStore";
+import NotificationBell from "./NotificationBell";
 
 const CATEGORIES = [
-  { label: 'All',      slug: '' },
-  { label: 'AI & ML',  slug: 'ai-ml' },
-  { label: 'Web Dev',  slug: 'web-dev' },
-  { label: 'Cloud',    slug: 'cloud-devops' },
-  { label: 'Hardware', slug: 'hardware' },
+  { label: "All", slug: "" },
+  { label: "AI & ML", slug: "ai-ml" },
+  { label: "Web Dev", slug: "web-dev" },
+  { label: "Cloud", slug: "cloud-devops" },
+  { label: "Hardware", slug: "hardware" },
 ];
 
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
-  const isMod = user && ['moderator', 'admin'].includes(user.role);
+  const isMod = user && ["moderator", "admin"].includes(user.role);
 
   function handleLogout() {
     logout();
-    navigate('/');
+    navigate("/");
     setMenuOpen(false);
   }
 
@@ -27,9 +27,11 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-5xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
-
           {/* Logo */}
-          <Link to="/" className="text-xl font-bold text-blue-600 tracking-tight shrink-0">
+          <Link
+            to="/"
+            className="text-xl font-bold text-blue-600 tracking-tight shrink-0"
+          >
             ITBeat
           </Link>
 
@@ -38,7 +40,7 @@ export default function Layout() {
             {CATEGORIES.map((c) => (
               <Link
                 key={c.slug}
-                to={c.slug ? `/?category=${c.slug}` : '/'}
+                to={c.slug ? `/?category=${c.slug}` : "/"}
                 className="px-3 py-1 rounded-full text-sm text-gray-600 hover:bg-gray-100 whitespace-nowrap transition"
               >
                 {c.label}
@@ -51,19 +53,40 @@ export default function Layout() {
             {user ? (
               <>
                 {isMod && (
-                  <Link to="/admin/queue" className="btn-ghost text-orange-600 hover:bg-orange-50">
+                  <Link
+                    to="/admin/queue"
+                    className="btn-ghost text-orange-600 hover:bg-orange-50"
+                  >
                     Queue
                   </Link>
                 )}
+                {user?.role === "admin" && (
+                  <Link
+                    to="/admin/categories"
+                    className="btn-ghost text-purple-600 hover:bg-purple-50"
+                  >
+                    Categories
+                  </Link>
+                )}
                 <NotificationBell />
-                <Link to="/submit" className="btn-primary">+ Submit</Link>
-                <span className="text-sm text-gray-500 hidden lg:block">{user.username}</span>
-                <button onClick={handleLogout} className="btn-ghost">Logout</button>
+                <Link to="/submit" className="btn-primary">
+                  + Submit
+                </Link>
+                <span className="text-sm text-gray-500 hidden lg:block">
+                  {user.username}
+                </span>
+                <button onClick={handleLogout} className="btn-ghost">
+                  Logout
+                </button>
               </>
             ) : (
               <>
-                <Link to="/login" className="btn-ghost">Login</Link>
-                <Link to="/register" className="btn-primary">Sign up</Link>
+                <Link to="/login" className="btn-ghost">
+                  Login
+                </Link>
+                <Link to="/register" className="btn-primary">
+                  Sign up
+                </Link>
               </>
             )}
           </div>
@@ -91,13 +114,12 @@ export default function Layout() {
         {/* Mobile dropdown menu */}
         {menuOpen && (
           <div className="lg:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-2">
-
             {/* Category pills */}
             <div className="flex gap-2 overflow-x-auto pb-2">
               {CATEGORIES.map((c) => (
                 <Link
                   key={c.slug}
-                  to={c.slug ? `/?category=${c.slug}` : '/'}
+                  to={c.slug ? `/?category=${c.slug}` : "/"}
                   onClick={() => setMenuOpen(false)}
                   className="px-3 py-1 rounded-full text-sm bg-gray-50 text-gray-600 hover:bg-gray-100 whitespace-nowrap transition border border-gray-200 shrink-0"
                 >
@@ -120,6 +142,14 @@ export default function Layout() {
                       className="block px-2 py-2 text-sm text-orange-600 hover:bg-orange-50 rounded-lg"
                     >
                       Moderation Queue
+                    </Link>
+                  )}
+                  {user?.role === "admin" && (
+                    <Link
+                      to="/admin/categories"
+                      className="btn-ghost text-purple-600 hover:bg-purple-50"
+                    >
+                      Categories
                     </Link>
                   )}
                   <button

@@ -1,14 +1,14 @@
-require('dotenv').config({ path: require('path').join(__dirname, '../../..', '.env') });
-const express = require('express');
+require("dotenv").config({
+  path: require("path").join(__dirname, "../../..", ".env"),
+});
+const express = require("express");
 const router = express.Router();
-const { attachUser, requireAuth, requireRole } = require('../middleware/auth');
-// const { Pool } = require('pg');
-// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
-const pool = require('../db/pool');
+const { attachUser, requireAuth, requireRole } = require("../middleware/auth");
+const pool = require("../db/pool");
 
-router.use(attachUser, requireAuth, requireRole('moderator', 'admin'));
+router.use(attachUser, requireAuth, requireRole("moderator", "admin"));
 
-router.get('/queue', async (req, res, next) => {
+router.get("/queue", async (req, res, next) => {
   try {
     const { rows } = await pool.query(`
       SELECT p.id, p.title, p.body, p.created_at,
@@ -21,66 +21,130 @@ router.get('/queue', async (req, res, next) => {
       ORDER BY p.created_at ASC
     `);
     res.json({ queue: rows });
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.patch('/posts/:id/approve', async (req, res, next) => {
+router.patch("/posts/:id/approve", async (req, res, next) => {
   try {
     const client = await pool.connect();
     try {
-      await client.query('BEGIN');
-      const { rows } = await client.query(`
+      await client.query("BEGIN");
+      const { rows } = await client.query(
+        `
         UPDATE posts SET status = 'approved', published_at = NOW()
         WHERE id = $1 AND status = 'pending'
         RETURNING user_id
-      `, [req.params.id]);
+      `,
+        [req.params.id],
+      );
       if (!rows[0]) {
-        await client.query('ROLLBACK');
-        return res.status(404).json({ error: 'Post not found or already reviewed.' });
+        await client.query("ROLLBACK");
+        return res
+          .status(404)
+          .json({ error: "Post not found or already reviewed." });
       }
-      await client.query(`
+      await client.query(
+        `
         UPDATE users SET approved_posts_count = approved_posts_count + 1
         WHERE id = $1
-      `, [rows[0].user_id]);
-      await client.query('COMMIT');
-      res.json({ message: 'Post approved and published.' });
+      `,
+        [rows[0].user_id],
+      );
+      await client.query("COMMIT");
+      res.json({ message: "Post approved and published." });
     } catch (err) {
-      await client.query('ROLLBACK');
+      await client.query("ROLLBACK");
       throw err;
     } finally {
       client.release();
     }
-  } catch (err) { next(err); }
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.patch('/posts/:id/reject', async (req, res, next) => {
+router.patch("/posts/:id/reject", async (req, res, next) => {
   try {
-    await pool.query(`
+    await pool.query(
+      `
       UPDATE posts SET status = 'rejected'
       WHERE id = $1 AND status = 'pending'
-    `, [req.params.id]);
-    res.json({ message: 'Post rejected.' });
-  } catch (err) { next(err); }
+    `,
+      [req.params.id],
+    );
+    res.json({ message: "Post rejected." });
+  } catch (err) {
+    next(err);
+  }
 });
 
-router.patch('/users/:id/trust', requireRole('admin'), async (req, res, next) => {
-  try {
-    await pool.query(`UPDATE users SET role = 'trusted' WHERE id = $1`, [req.params.id]);
-    res.json({ message: 'User promoted to trusted.' });
-  } catch (err) { next(err); }
-});
+router.patch(
+  "/users/:id/trust",
+  requireRole("admin"),
+  async (req, res, next) => {
+    try {
+      await pool.query(`UPDATE users SET role = 'trusted' WHERE id = $1`, [
+        req.params.id,
+      ]);
+      res.json({ message: "User promoted to trusted." });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
-
-router.delete('/posts/:id', requireRole('admin'), async (req, res, next) => {
+router.delete("/posts/:id", requireRole("admin"), async (req, res, next) => {
   try {
     const { rows } = await pool.query(
-      'DELETE FROM posts WHERE id = $1 RETURNING id',
-      [req.params.id]
+      "DELETE FROM posts WHERE id = $1 RETURNING id",
+      [req.params.id],
     );
-    if (!rows[0]) return res.status(404).json({ error: 'Post not found.' });
-    res.json({ message: 'Post deleted.' });
-  } catch (err) { next(err); }
+    if (!rows[0]) return res.status(404).json({ error: "Post not found." });
+    res.json({ message: "Post deleted." });
+  } catch (err) {
+    next(err);
+  }
 });
 
+router.get("/categories", requireRole("admin"), async (req, res, next) => {
+  try {
+    const { rows } = await pool.query("SELECT * FROM categories ORDER BY name");
+    res.json({ categories: rows });
+  } catch (err) {
+    next(err);
+  }
+});
+
+router.post("/categories", requireRole("admin"), async (req, res, next) => {
+  try {
+    const { name, slug } = req.body;
+    if (!name || !slug)
+      return res.status(400).json({ error: "Name and slug required." });
+    const { rows } = await pool.query(
+      "INSERT INTO categories (name, slug) VALUES ($1, $2) RETURNING *",
+      [name, slug.toLowerCase().replace(/\s+/g, "-")],
+    );
+    res.status(201).json({ category: rows[0] });
+  } catch (err) {
+    if (err.code === "23505")
+      return res.status(409).json({ error: "Category already exists." });
+    next(err);
+  }
+});
+
+router.delete(
+  "/categories/:id",
+  requireRole("admin"),
+  async (req, res, next) => {
+    try {
+      await pool.query("DELETE FROM categories WHERE id = $1", [req.params.id]);
+      res.json({ message: "Category deleted." });
+    } catch (err) {
+      next(err);
+    }
+  },
+);
 
 module.exports = router;
