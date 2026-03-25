@@ -189,12 +189,15 @@ export default function NotificationBell() {
                 );
               })} */}
               {notifications.map((n) => {
-                // 1. We need to re-add these variables inside the loop!
-                const isUnread = n.is_read === false || n.is_read === 0;
+                // 1. Check for unread status (Postgres usually returns true/false)
+                const isUnread = n.is_read === false;
 
-                const timeAgo = formatDistanceToNow(new Date(n.created_at), {
-                  addSuffix: true,
-                });
+                // 2. Prepare the time and message strings
+                const timeAgo = n.created_at
+                  ? formatDistanceToNow(new Date(n.created_at), {
+                      addSuffix: true,
+                    })
+                  : "";
 
                 const message =
                   n.type === "like"
@@ -206,23 +209,43 @@ export default function NotificationBell() {
                     key={n.id}
                     onClick={() => handleNotifClick(n.post_id)}
                     className={`w-full text-left px-4 py-3 transition border-b border-gray-50 last:border-0 ${
-                      isUnread ? "bg-blue-50/50" : "bg-white"
-                    } hover:bg-gray-100`}
+                      isUnread
+                        ? "bg-blue-50/40 hover:bg-blue-100/60" // Light blue tint for unread
+                        : "bg-white hover:bg-gray-50" // Plain white for read
+                    }`}
                   >
-                    <p className="text-sm text-gray-800">
-                      <strong className={isUnread ? "text-blue-700" : ""}>
-                        {n.actor_username}
-                      </strong>{" "}
-                      {message}
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-gray-800">
+                          <strong
+                            className={
+                              isUnread
+                                ? "text-blue-700 font-bold"
+                                : "font-semibold"
+                            }
+                          >
+                            {n.actor_username}
+                          </strong>{" "}
+                          {message}
+                        </p>
+
+                        <p className="text-xs text-gray-500 mt-1 truncate">
+                          {n.post_title}
+                        </p>
+
+                        <p className="text-[10px] text-gray-400 mt-1 uppercase tracking-wider font-medium">
+                          {timeAgo}
+                        </p>
+                      </div>
+
+                      {/* 3. The Visual "Unread Dot" Indicator */}
                       {isUnread && (
-                        <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
+                        <span
+                          className="w-2.5 h-2.5 bg-blue-500 rounded-full mt-1.5 shadow-sm shadow-blue-200"
+                          title="Unread"
+                        ></span>
                       )}
-                    </p>
-                    {/* 2. Don't forget to put back the title and time! */}
-                    <p className="text-xs text-gray-400 mt-0.5 truncate">
-                      {n.post_title}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">{timeAgo}</p>
+                    </div>
                   </button>
                 );
               })}
