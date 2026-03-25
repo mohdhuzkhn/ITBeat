@@ -39,10 +39,33 @@ export default function NotificationBell() {
     enabled: open,
   });
 
+  // const markAllRead = useMutation({
+  //   mutationFn: () => api.patch("/notifications/read-all"),
+  //   onSuccess: () => {
+  //     qc.setQueryData(["notif-count"], { count: 0 });
+  //     qc.invalidateQueries({ queryKey: ["notif-count"] });
+  //     qc.invalidateQueries({ queryKey: ["notifications"] });
+  //   },
+  // });
   const markAllRead = useMutation({
     mutationFn: () => api.patch("/notifications/read-all"),
     onSuccess: () => {
+      // 1. Set count to 0 instantly
       qc.setQueryData(["notif-count"], { count: 0 });
+
+      // 2. Update the notification list cache manually to show them as "read"
+      qc.setQueryData(["notifications"], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          notifications: old.notifications.map((n) => ({
+            ...n,
+            is_read: true,
+          })),
+        };
+      });
+
+      // 3. Then fetch fresh data from server to be safe
       qc.invalidateQueries({ queryKey: ["notif-count"] });
       qc.invalidateQueries({ queryKey: ["notifications"] });
     },
@@ -140,7 +163,7 @@ export default function NotificationBell() {
             </div>
           ) : (
             <div>
-              {notifications.map((n) => {
+              {/* {notifications.map((n) => {
                 const timeAgo = formatDistanceToNow(new Date(n.created_at), {
                   addSuffix: true,
                 });
@@ -158,6 +181,44 @@ export default function NotificationBell() {
                     <p className="text-sm text-gray-800">
                       <strong>{n.actor_username}</strong> {message}
                     </p>
+                    <p className="text-xs text-gray-400 mt-0.5 truncate">
+                      {n.post_title}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">{timeAgo}</p>
+                  </button>
+                );
+              })} */}
+              {notifications.map((n) => {
+                // 1. We need to re-add these variables inside the loop!
+                const isUnread = n.is_read === false || n.is_read === 0;
+
+                const timeAgo = formatDistanceToNow(new Date(n.created_at), {
+                  addSuffix: true,
+                });
+
+                const message =
+                  n.type === "like"
+                    ? "liked your post"
+                    : "commented on your post";
+
+                return (
+                  <button
+                    key={n.id}
+                    onClick={() => handleNotifClick(n.post_id)}
+                    className={`w-full text-left px-4 py-3 transition border-b border-gray-50 last:border-0 ${
+                      isUnread ? "bg-blue-50/50" : "bg-white"
+                    } hover:bg-gray-100`}
+                  >
+                    <p className="text-sm text-gray-800">
+                      <strong className={isUnread ? "text-blue-700" : ""}>
+                        {n.actor_username}
+                      </strong>{" "}
+                      {message}
+                      {isUnread && (
+                        <span className="ml-2 inline-block w-2 h-2 bg-blue-500 rounded-full"></span>
+                      )}
+                    </p>
+                    {/* 2. Don't forget to put back the title and time! */}
                     <p className="text-xs text-gray-400 mt-0.5 truncate">
                       {n.post_title}
                     </p>
