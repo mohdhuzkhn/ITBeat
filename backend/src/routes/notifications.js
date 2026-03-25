@@ -4,12 +4,17 @@ require("dotenv").config({
 const express = require("express");
 const router = express.Router();
 const { attachUser, requireAuth } = require("../middleware/auth");
-// const { Pool } = require('pg');
-// const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const pool = require("../db/pool");
 
+// --- REPLACE YOUR CURRENT router.get('/') WITH THIS ---
 router.get("/", attachUser, requireAuth, async (req, res, next) => {
   try {
+    // This line tells the browser: "Do not show old/cached data, always ask the server"
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+
     const { rows } = await pool.query(
       `
       SELECT n.id, n.type, n.is_read, n.created_at,
@@ -24,6 +29,7 @@ router.get("/", attachUser, requireAuth, async (req, res, next) => {
     `,
       [req.user.id],
     );
+
     res.json({ notifications: rows });
   } catch (err) {
     next(err);
@@ -53,6 +59,12 @@ router.patch("/read-all", attachUser, requireAuth, async (req, res, next) => {
 
 router.get("/unread-count", attachUser, requireAuth, async (req, res, next) => {
   try {
+    // Add it here too!
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, proxy-revalidate",
+    );
+
     const { rows } = await pool.query(
       "SELECT COUNT(*) FROM notifications WHERE user_id = $1 AND is_read = FALSE",
       [req.user.id],

@@ -74,10 +74,9 @@ export default function NotificationBell() {
   const unread = countData?.count || 0;
   const notifications = notifsData?.notifications || [];
 
+  // Remove the mutation from here
   function handleOpen() {
-    const newOpen = !open;
-    setOpen(newOpen);
-    if (newOpen && unread > 0) markAllRead.mutate();
+    setOpen(!open);
   }
 
   function handleNotifClick(postId) {
@@ -190,7 +189,10 @@ export default function NotificationBell() {
               })} */}
               {notifications.map((n) => {
                 // 1. Check for unread status (Postgres usually returns true/false)
-                const isUnread = n.is_read === false;
+                const isUnread =
+                  n.is_read === false ||
+                  String(n.is_read) === "false" ||
+                  n.is_read === 0;
 
                 // 2. Prepare the time and message strings
                 const timeAgo = n.created_at
