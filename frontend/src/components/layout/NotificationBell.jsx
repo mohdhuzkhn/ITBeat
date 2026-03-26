@@ -26,13 +26,13 @@ export default function NotificationBell() {
     };
   }, [open]);
 
-  const { data: countData, refetch: refetchCount } = useQuery({
+  const { data: countData } = useQuery({
     queryKey: ['notif-count'],
     queryFn: () => api.get('/notifications/unread-count').then(r => r.data),
     refetchInterval: 30000,
   });
 
-  const { data: notifsData, refetch: refetchNotifs } = useQuery({
+  const { data: notifsData } = useQuery({
     queryKey: ['notifications'],
     queryFn: () => api.get('/notifications').then(r => r.data),
     enabled: open,
@@ -41,9 +41,18 @@ export default function NotificationBell() {
   const markAllRead = useMutation({
     mutationFn: () => api.patch('/notifications/read-all'),
     onSuccess: () => {
+      // FIX 1: Only do optimistic update — NO refetch calls
+      // Update count to 0
       qc.setQueryData(['notif-count'], { count: 0 });
-      refetchCount();
-      refetchNotifs();
+
+      // Update notifications list in cache directly (mark all as read)
+      qc.setQueryData(['notifications'], (old) => {
+        if (!old) return old;
+        return {
+          ...old,
+          notifications: old.notifications.map(n => ({ ...n, is_read: true })),
+        };
+      });
     },
   });
 
@@ -53,9 +62,8 @@ export default function NotificationBell() {
   function handleOpen() {
     const newOpen = !open;
     setOpen(newOpen);
-    if (newOpen && unread > 0) {
-      markAllRead.mutate();
-    }
+    // FIX 2: Removed auto mark-all-read on bell click
+    // Let the user explicitly click "Mark all read" instead
   }
 
   function handleNotifClick(postId) {
@@ -114,12 +122,14 @@ export default function NotificationBell() {
               Notifications
             </span>
             <div className="flex items-center gap-3">
-              {notifications.length > 0 && (
+              {notifications.some(n => !n.is_read) && (
                 <button
                   onClick={() => markAllRead.mutate()}
-                  className="text-xs text-blue-600 hover:underline"
+                  // FIX 3: Disable button while mutation is running
+                  disabled={markAllRead.isPending}
+                  className="text-xs text-blue-600 hover:underline disabled:opacity-50"
                 >
-                  Mark all read
+                  {markAllRead.isPending ? 'Marking...' : 'Mark all read'}
                 </button>
               )}
               <button
@@ -149,9 +159,24 @@ export default function NotificationBell() {
                   <button
                     key={n.id}
                     onClick={() => handleNotifClick(n.post_id)}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-50 last:border-0"
+                    // FIX 4: Visual distinction for unread notifications
+                    className={`w-full text-left px-4 py-3 hover:bg-gray-50 transition border-b border-gray-50 last:border-0 ${
+                      !n.is_read ? 'bg-blue-50' : ''
+                    }`}
                   >
                     <p className="text-sm text-gray-800">
+                      {/* FIX 4: Bold dot indicator for unread */}
+                      {!n.is_read && (
+                        <span style={{
+                          display: 'inline-block',
+                          width: '6px',
+                          height: '6px',
+                          borderRadius: '50%',
+                          background: '#3b82f6',
+                          marginRight: '6px',
+                          verticalAlign: 'middle',
+                        }} />
+                      )}
                       <strong>{n.actor_username}</strong> {message}
                     </p>
                     <p className="text-xs text-gray-400 mt-0.5 truncate">
