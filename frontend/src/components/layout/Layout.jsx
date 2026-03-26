@@ -33,13 +33,14 @@ export default function Layout() {
     };
     return map[name] || (name.length > 8 ? name.slice(0, 8) + "…" : name);
   };
-
   const navCategories = [
     { label: "All", slug: "" },
-    ...(catData?.categories || []).map((c) => ({
-      label: shortLabel(c.name),
-      slug: c.slug,
-    })),
+    ...(catData?.categories || [])
+      .filter((c) => c.slug !== "general") // ← this is the only change
+      .map((c) => ({
+        label: shortLabel(c.name),
+        slug: c.slug,
+      })),
   ];
 
   function handleLogout() {
