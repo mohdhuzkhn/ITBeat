@@ -2,12 +2,24 @@ import { useQuery } from "@tanstack/react-query";
 import { useSearchParams } from "react-router-dom";
 import { postService } from "../services/api";
 import PostCard from "../components/feed/PostCard";
+import api from "../services/api";
 
 export default function FeedPage() {
   const [params, setParams] = useSearchParams();
   const category = params.get("category") || "";
   const search = params.get("q") || "";
   const submitted = params.get("submitted") === "true";
+
+  // Fetch categories for filter tabs
+  const { data: catData } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () => api.get("/categories").then(r => r.data),
+  });
+
+  // Filter tabs: exclude General
+  const filterCategories = (catData?.categories || []).filter(
+    c => c.slug !== "general"
+  );
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ["posts", category, search],
@@ -24,6 +36,14 @@ export default function FeedPage() {
     e.preventDefault();
     const q = e.target.q.value.trim();
     setParams(q ? { q } : {});
+  }
+
+  function handleCategoryTab(slug) {
+    if (slug === "") {
+      setParams({});
+    } else {
+      setParams({ category: slug });
+    }
   }
 
   return (
@@ -64,6 +84,33 @@ export default function FeedPage() {
           </button>
         )}
       </form>
+
+      {/* Category filter tabs — General is excluded */}
+      <div className="flex gap-2 flex-wrap mb-6">
+        <button
+          onClick={() => handleCategoryTab("")}
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+            category === ""
+              ? "bg-blue-600 text-white"
+              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+          }`}
+        >
+          All
+        </button>
+        {filterCategories.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => handleCategoryTab(c.slug)}
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+              category === c.slug
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            }`}
+          >
+            {c.name}
+          </button>
+        ))}
+      </div>
 
       {search && (
         <p className="text-sm text-gray-500 mb-4">

@@ -39,7 +39,16 @@ export default function CreatePostPage() {
     });
   }
 
-  const categories = catData?.categories || [];
+  const rawCategories = catData?.categories || [];
+
+  // Put General first, rest alphabetically after
+  const categories = [
+    ...rawCategories.filter(c => c.slug === 'general'),
+    ...rawCategories.filter(c => c.slug !== 'general'),
+  ];
+
+  // Find General's id for defaultValue
+  const generalId = categories.find(c => c.slug === 'general')?.id || '';
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -67,11 +76,20 @@ export default function CreatePostPage() {
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
             Category
+            <span className="text-gray-400 font-normal ml-1">(General by default)</span>
           </label>
-          <select name="category_id" required className="input">
-            <option value="">Select a category</option>
+          {/* key={generalId} ensures defaultValue applies once generalId loads */}
+          <select
+            key={generalId}
+            name="category_id"
+            required
+            className="input"
+            defaultValue={generalId}
+          >
             {categories.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}</option>
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
             ))}
           </select>
         </div>
