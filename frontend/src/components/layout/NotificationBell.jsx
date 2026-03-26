@@ -41,21 +41,8 @@ export default function NotificationBell() {
   const markAllRead = useMutation({
     mutationFn: () => api.patch("/notifications/read-all"),
     onSuccess: () => {
-      // FIX 1: Only do optimistic update — NO refetch calls
-      // Update count to 0
-      qc.setQueryData(["notif-count"], { count: 0 });
-
-      // Update notifications list in cache directly (mark all as read)
-      qc.setQueryData(["notifications"], (old) => {
-        if (!old) return old;
-        return {
-          ...old,
-          notifications: old.notifications.map((n) => ({
-            ...n,
-            is_read: true,
-          })),
-        };
-      });
+      qc.invalidateQueries({ queryKey: ["notif-count"] });
+      qc.invalidateQueries({ queryKey: ["notifications"] });
     },
   });
 
