@@ -5,14 +5,6 @@ import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../../store/authStore";
 import NotificationBell from "./NotificationBell";
 
-// const CATEGORIES = [
-//   { label: "All",      slug: "" },
-//   { label: "AI & ML",  slug: "ai-ml" },
-//   { label: "Web Dev",  slug: "web-dev" },
-//   { label: "Cloud",    slug: "cloud-devops" },
-//   { label: "Hardware", slug: "hardware" },
-// ];
-
 export default function Layout() {
   const { user, logout } = useAuthStore();
   const navigate = useNavigate();
@@ -33,10 +25,11 @@ export default function Layout() {
     };
     return map[name] || (name.length > 8 ? name.slice(0, 8) + "…" : name);
   };
+
   const navCategories = [
     { label: "All", slug: "" },
     ...(catData?.categories || [])
-      .filter((c) => c.slug !== "general") // ← this is the only change
+      .filter((c) => c.slug !== "general")
       .map((c) => ({
         label: shortLabel(c.name),
         slug: c.slug,
@@ -53,6 +46,7 @@ export default function Layout() {
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
+
           {/* Logo */}
           <Link
             to="/"
@@ -60,7 +54,8 @@ export default function Layout() {
           >
             ITBeat
           </Link>
-          {/* Category pills — desktop only */}
+
+          {/* Category pills + About — desktop only */}
           <nav className="hidden md:flex items-center gap-1 overflow-x-auto shrink-0">
             {navCategories.map((c) => (
               <Link
@@ -71,14 +66,14 @@ export default function Layout() {
                 {c.label}
               </Link>
             ))}
+            <Link
+              to="/about"
+              className="px-2 py-1 rounded-full text-xs text-gray-600 hover:bg-gray-100 whitespace-nowrap transition"
+            >
+              About
+            </Link>
           </nav>
-          // Add this before the Queue link or after the logo nav pills
-          <Link
-            to="/about"
-            className="px-2 py-1 rounded-full text-xs text-gray-600 hover:bg-gray-100 transition"
-          >
-            About
-          </Link>
+
           {/* Right side — desktop only */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
             {user ? (
@@ -103,9 +98,13 @@ export default function Layout() {
                 <Link to="/submit" className="btn-primary text-xs px-3 py-1.5">
                   + Submit
                 </Link>
-                <span className="text-xs text-gray-500 hidden xl:block">
+                {/* Username links to profile */}
+                <Link
+                  to={`/users/${user.username}`}
+                  className="text-xs text-gray-500 hidden xl:block hover:text-blue-600 hover:underline"
+                >
                   {user.username}
-                </span>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="btn-ghost text-xs px-2 py-1"
@@ -127,6 +126,7 @@ export default function Layout() {
               </>
             )}
           </div>
+
           {/* Mobile right side */}
           <div className="flex md:hidden items-center gap-2">
             {user && <NotificationBell />}
@@ -135,7 +135,7 @@ export default function Layout() {
                 + Submit
               </Link>
             )}
-            {/* Hamburger button */}
+            {/* Hamburger */}
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="p-2 rounded-lg hover:bg-gray-100 transition flex flex-col justify-center gap-1"
@@ -171,6 +171,22 @@ export default function Layout() {
                   <p className="text-sm text-gray-500 px-2 py-1">
                     Signed in as <strong>{user.username}</strong>
                   </p>
+                  {/* Profile link */}
+                  <Link
+                    to={`/users/${user.username}`}
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                  >
+                    My Profile
+                  </Link>
+                  {/* About link */}
+                  <Link
+                    to="/about"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                  >
+                    About
+                  </Link>
                   {isMod && (
                     <Link
                       to="/admin/queue"
@@ -198,6 +214,14 @@ export default function Layout() {
                 </>
               ) : (
                 <>
+                  {/* About for logged out users too */}
+                  <Link
+                    to="/about"
+                    onClick={() => setMenuOpen(false)}
+                    className="block px-2 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
+                  >
+                    About
+                  </Link>
                   <Link
                     to="/login"
                     onClick={() => setMenuOpen(false)}
