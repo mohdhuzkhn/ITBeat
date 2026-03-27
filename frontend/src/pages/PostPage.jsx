@@ -8,8 +8,6 @@ import LikeButton from "../components/feed/LikeButton";
 import CommentSection from "../components/feed/CommentSection";
 import clsx from "clsx";
 import api from "../services/api";
-import { Link } from "react-router-dom";
-
 const CATEGORY_COLORS = {
   "ai-ml": "bg-purple-100 text-purple-700",
   "web-dev": "bg-blue-100 text-blue-700",

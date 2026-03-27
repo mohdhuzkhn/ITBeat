@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import clsx from "clsx";
 import LikeButton from "./LikeButton";
-import { Link } from "react-router-dom";
 
 const CATEGORY_COLORS = {
   "ai-ml": "bg-purple-100 text-purple-700",
