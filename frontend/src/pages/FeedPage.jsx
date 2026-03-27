@@ -89,7 +89,7 @@ export default function FeedPage() {
       <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => handleCategoryTab("")}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap shrink-0 ${
             category === ""
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
@@ -101,7 +101,7 @@ export default function FeedPage() {
           <button
             key={c.id}
             onClick={() => handleCategoryTab(c.slug)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap shrink-0 ${
               category === c.slug
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
