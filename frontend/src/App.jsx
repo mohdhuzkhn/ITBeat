@@ -9,6 +9,7 @@ import RegisterPage from "./pages/RegisterPage";
 import AdminQueuePage from "./pages/AdminQueuePage";
 import { useAuthStore } from "./store/authStore";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage";
+import AuthCallbackPage from "./pages/AuthCallbackPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 } },
@@ -56,6 +57,7 @@ export default function App() {
               }
             />
           </Route>
+          <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Routes>
       </BrowserRouter>
     </QueryClientProvider>
