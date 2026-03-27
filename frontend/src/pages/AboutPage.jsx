@@ -43,8 +43,7 @@ export default function AboutPage() {
         </p>
         <p className="text-gray-700 leading-relaxed">
           ITBeat is a focused space for IT professionals and enthusiasts to
-          share, discover, and discuss the latest technology updates. No
-          algorithms, no ads — just real content from real people in the tech
+          share, discover, and discuss the latest technology updates. <br />— just real content from real people in the tech
           community.
         </p>
         <div className="flex justify-center gap-3 mt-6">
