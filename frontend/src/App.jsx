@@ -10,6 +10,8 @@ import AdminQueuePage from "./pages/AdminQueuePage";
 import { useAuthStore } from "./store/authStore";
 import AdminCategoriesPage from "./pages/AdminCategoriesPage";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
+import ProfilePage from "./pages/ProfilePage";
+import AboutPage from "./pages/AboutPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { staleTime: 1000 * 60 } },
@@ -56,6 +58,8 @@ export default function App() {
                 </ProtectedRoute>
               }
             />
+            <Route path="/users/:username" element={<ProfilePage />} />
+            <Route path="/about" element={<AboutPage />} />
           </Route>
           <Route path="/auth/callback" element={<AuthCallbackPage />} />
         </Routes>

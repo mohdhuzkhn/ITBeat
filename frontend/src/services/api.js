@@ -22,17 +22,19 @@ export const postService = {
   create: (data) => api.post("/posts", data),
 };
 
-
 export const adminService = {
-  getQueue:       ()         => api.get('/admin/queue'),
-  approvePost:    (id)       => api.patch(`/admin/posts/${id}/approve`),
-  rejectPost:     (id)       => api.patch(`/admin/posts/${id}/reject`),
-  trustUser:      (id)       => api.patch(`/admin/users/${id}/trust`),
-  deletePost:     (id)       => api.delete(`/admin/posts/${id}`),
-  getCategories:  ()         => api.get('/admin/categories'),
-  addCategory:    (data)     => api.post('/admin/categories', data),
-  deleteCategory: (id)       => api.delete(`/admin/categories/${id}`),
+  getQueue: () => api.get("/admin/queue"),
+  approvePost: (id) => api.patch(`/admin/posts/${id}/approve`),
+  rejectPost: (id) => api.patch(`/admin/posts/${id}/reject`),
+  trustUser: (id) => api.patch(`/admin/users/${id}/trust`),
+  deletePost: (id) => api.delete(`/admin/posts/${id}`),
+  getCategories: () => api.get("/admin/categories"),
+  addCategory: (data) => api.post("/admin/categories", data),
+  deleteCategory: (id) => api.delete(`/admin/categories/${id}`),
 };
 
+export const userService = {
+  getProfile: (username) => api.get(`/users/${username}`),
+};
 
 export default api;

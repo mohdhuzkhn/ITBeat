@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { formatDistanceToNow } from "date-fns";
 import clsx from "clsx";
 import LikeButton from "./LikeButton";
+import { Link } from "react-router-dom";
 
 const CATEGORY_COLORS = {
   "ai-ml": "bg-purple-100 text-purple-700",
@@ -44,7 +45,13 @@ export default function PostCard({ post }) {
           <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-semibold uppercase">
             {post.username?.[0]}
           </div>
-          <span>{post.username}</span>
+          <Link
+            to={`/users/${post.username}`}
+            className="hover:text-blue-600 hover:underline"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {post.username}
+          </Link>
           {roleBadge && (
             <span className={clsx("badge", roleBadge.cls)}>
               {roleBadge.label}

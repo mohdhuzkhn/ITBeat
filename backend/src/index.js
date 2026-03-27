@@ -1,7 +1,7 @@
 require("dotenv").config({
   path: require("path").join(__dirname, "../..", ".env"),
 });
-process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -14,6 +14,7 @@ const { errorHandler } = require("./middleware/errorHandler");
 const likesRoutes = require("./routes/likes");
 const commentsRoutes = require("./routes/comments");
 const notificationsRoutes = require("./routes/notifications");
+const userRoutes = require("./routes/users");
 
 const app = express();
 app.use(helmet());
@@ -41,6 +42,7 @@ app.use(errorHandler);
 app.use("/api/v1/posts", likesRoutes);
 app.use("/api/v1/posts", commentsRoutes);
 app.use("/api/v1/notifications", notificationsRoutes);
+app.use("/api/v1/users", userRoutes);
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () =>
   console.log(`ITBeat API running on http://localhost:${PORT}`),

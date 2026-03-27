@@ -8,6 +8,7 @@ import LikeButton from "../components/feed/LikeButton";
 import CommentSection from "../components/feed/CommentSection";
 import clsx from "clsx";
 import api from "../services/api";
+import { Link } from "react-router-dom";
 
 const CATEGORY_COLORS = {
   "ai-ml": "bg-purple-100 text-purple-700",
@@ -118,7 +119,7 @@ export default function PostPage() {
     CATEGORY_COLORS[data.category_slug] || "bg-gray-100 text-gray-600";
   const timeAgo = formatDistanceToNow(
     new Date(data.published_at || data.created_at),
-    { addSuffix: true }
+    { addSuffix: true },
   );
 
   // ── EDIT MODE ──────────────────────────────────────────────
@@ -193,9 +194,7 @@ export default function PostPage() {
             </div>
 
             {/* Error */}
-            {editError && (
-              <p className="text-sm text-red-500">{editError}</p>
-            )}
+            {editError && <p className="text-sm text-red-500">{editError}</p>}
 
             {/* Actions */}
             <div className="flex gap-3 pt-2">
@@ -250,9 +249,12 @@ export default function PostPage() {
               {data.username?.[0]}
             </div>
             <div>
-              <p className="text-sm font-medium text-gray-800">
+              <Link
+                to={`/users/${data.username}`}
+                className="text-sm font-medium text-gray-800 hover:text-blue-600 hover:underline"
+              >
                 {data.username}
-              </p>
+              </Link>
               <p className="text-xs text-gray-400">Posted {timeAgo}</p>
             </div>
           </div>
