@@ -60,7 +60,6 @@ export default function Layout() {
           >
             ITBeat
           </Link>
-
           {/* Category pills — desktop only */}
           <nav className="hidden md:flex items-center gap-1 overflow-x-auto shrink-0">
             {navCategories.map((c) => (
@@ -73,7 +72,13 @@ export default function Layout() {
               </Link>
             ))}
           </nav>
-
+          // Add this before the Queue link or after the logo nav pills
+          <Link
+            to="/about"
+            className="px-2 py-1 rounded-full text-xs text-gray-600 hover:bg-gray-100 transition"
+          >
+            About
+          </Link>
           {/* Right side — desktop only */}
           <div className="hidden md:flex items-center gap-1 shrink-0">
             {user ? (
@@ -122,7 +127,6 @@ export default function Layout() {
               </>
             )}
           </div>
-
           {/* Mobile right side */}
           <div className="flex md:hidden items-center gap-2">
             {user && <NotificationBell />}
