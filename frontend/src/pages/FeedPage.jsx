@@ -13,12 +13,12 @@ export default function FeedPage() {
   // Fetch categories for filter tabs
   const { data: catData } = useQuery({
     queryKey: ["categories"],
-    queryFn: () => api.get("/categories").then(r => r.data),
+    queryFn: () => api.get("/categories").then((r) => r.data),
   });
 
   // Filter tabs: exclude General
   const filterCategories = (catData?.categories || []).filter(
-    c => c.slug !== "general"
+    (c) => c.slug !== "general",
   );
 
   const { data, isLoading, isError } = useQuery({
@@ -86,7 +86,7 @@ export default function FeedPage() {
       </form>
 
       {/* Category filter tabs — General is excluded */}
-      <div className="flex gap-2 flex-wrap mb-6">
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => handleCategoryTab("")}
           className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
