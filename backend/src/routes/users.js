@@ -6,6 +6,21 @@ const router = express.Router();
 const { attachUser, requireAuth } = require("../middleware/auth");
 const pool = require("../db/pool");
 
+// GET /api/v1/users/stats — public platform stats
+router.get('/stats', async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(`
+      SELECT
+        (SELECT COUNT(*) FROM posts WHERE status = 'approved') AS posts,
+        (SELECT COUNT(*) FROM users) AS users,
+        (SELECT COUNT(*) FROM categories) AS categories,
+        (SELECT COUNT(*) FROM comments) AS comments
+    `);
+    res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
 // GET /api/v1/users/:username — public profile
 router.get("/:username", attachUser, async (req, res, next) => {
   try {

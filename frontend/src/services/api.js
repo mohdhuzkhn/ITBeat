@@ -35,6 +35,10 @@ export const adminService = {
 
 export const userService = {
   getProfile: (username) => api.get(`/users/${username}`),
+  // FOr profile stats
+  getStats: () => api.get('/users/stats'),
 };
 
 export default api;
+
+

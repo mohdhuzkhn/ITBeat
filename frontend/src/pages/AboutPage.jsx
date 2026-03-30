@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom";import StatsBar from '../components/feed/StatsBar';
 const FEATURES = [
   {
     icon: "📰",
@@ -55,7 +55,7 @@ export default function AboutPage() {
           </Link>
         </div>
       </div>
-
+      <StatsBar />  {/* ← add here */}
       {/* Features */}
       <div>
         <h2 className="text-lg font-bold text-gray-800 mb-4">

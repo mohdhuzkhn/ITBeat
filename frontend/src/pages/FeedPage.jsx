@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { postService } from "../services/api";
 import PostCard from "../components/feed/PostCard";
 import api from "../services/api";
+import StatsBar from '../components/feed/StatsBar';
 
 export default function FeedPage() {
   const [params, setParams] = useSearchParams();
@@ -63,7 +64,7 @@ export default function FeedPage() {
           </div>
         </div>
       )}
-
+      <StatsBar />  {/* ← add here */}
       <form onSubmit={handleSearch} className="mb-6 flex gap-2">
         <input
           name="q"
@@ -89,11 +90,10 @@ export default function FeedPage() {
       <div className="flex gap-2 mb-6 overflow-x-auto pb-1 scrollbar-none">
         <button
           onClick={() => handleCategoryTab("")}
-          className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap shrink-0 ${
-            category === ""
+          className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap shrink-0 ${category === ""
               ? "bg-blue-600 text-white"
               : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-          }`}
+            }`}
         >
           All
         </button>
@@ -101,11 +101,10 @@ export default function FeedPage() {
           <button
             key={c.id}
             onClick={() => handleCategoryTab(c.slug)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap shrink-0 ${
-              category === c.slug
+            className={`px-4 py-1.5 rounded-full text-sm font-medium transition whitespace-nowrap shrink-0 ${category === c.slug
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+              }`}
           >
             {c.name}
           </button>
