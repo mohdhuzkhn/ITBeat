@@ -3,7 +3,7 @@ import { useSearchParams } from "react-router-dom";
 import { postService } from "../services/api";
 import PostCard from "../components/feed/PostCard";
 import api from "../services/api";
-import StatsBar from '../components/feed/StatsBar';
+// import StatsBar from '../components/feed/StatsBar';
 
 export default function FeedPage() {
   const [params, setParams] = useSearchParams();
@@ -64,7 +64,7 @@ export default function FeedPage() {
           </div>
         </div>
       )}
-      <StatsBar />  {/* ← add here */}
+      {/* <StatsBar />   */}
       <form onSubmit={handleSearch} className="mb-6 flex gap-2">
         <input
           name="q"

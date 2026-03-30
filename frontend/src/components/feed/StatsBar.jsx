@@ -14,21 +14,21 @@ export default function StatsBar() {
             value: data?.posts,
             icon: '📰',
         },
-        {
-            label: 'Community Members',
-            value: data?.users,
-            icon: '👥',
-        },
+        // {
+        //     label: 'Community Members',
+        //     value: data?.users,
+        //     icon: '👥',
+        // },
         {
             label: 'Categories',
             value: data?.categories,
             icon: '🗂️',
         },
-        {
-            label: 'Comments',
-            value: data?.comments,
-            icon: '💬',
-        },
+        // {
+        //     label: 'Comments',
+        //     value: data?.comments,
+        //     icon: '💬',
+        // },
     ];
 
     return (
@@ -48,3 +48,9 @@ export default function StatsBar() {
         </div>
     );
 }
+
+
+
+
+
+
