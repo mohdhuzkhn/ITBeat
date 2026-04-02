@@ -31,14 +31,13 @@ export const adminService = {
   getCategories: () => api.get("/admin/categories"),
   addCategory: (data) => api.post("/admin/categories", data),
   deleteCategory: (id) => api.delete(`/admin/categories/${id}`),
+  editCategory: (id, data) => api.patch(`/admin/categories/${id}`, data),
 };
 
 export const userService = {
   getProfile: (username) => api.get(`/users/${username}`),
   // FOr profile stats
-  getStats: () => api.get('/users/stats'),
+  getStats: () => api.get("/users/stats"),
 };
 
 export default api;
-
-

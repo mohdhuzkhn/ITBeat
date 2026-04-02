@@ -8,6 +8,12 @@ export default function AdminCategoriesPage() {
   const [slug, setSlug] = useState("");
   const [error, setError] = useState("");
 
+  // Edit state
+  const [editingId, setEditingId] = useState(null);
+  const [editName, setEditName] = useState("");
+  const [editSlug, setEditSlug] = useState("");
+  const [editError, setEditError] = useState("");
+
   const { data, isLoading } = useQuery({
     queryKey: ["admin-categories"],
     queryFn: () => adminService.getCategories().then((r) => r.data),
@@ -34,6 +40,18 @@ export default function AdminCategoriesPage() {
     },
   });
 
+  const editCategory = useMutation({
+    mutationFn: ({ id, data }) => adminService.editCategory(id, data),
+    onSuccess: () => {
+      setEditingId(null);
+      setEditError("");
+      qc.invalidateQueries({ queryKey: ["admin-categories"] });
+      qc.invalidateQueries({ queryKey: ["categories"] });
+    },
+    onError: (err) =>
+      setEditError(err.response?.data?.error || "Failed to update category."),
+  });
+
   function handleSubmit(e) {
     e.preventDefault();
     if (!name.trim() || !slug.trim()) return;
@@ -48,6 +66,29 @@ export default function AdminCategoriesPage() {
         .replace(/\s+/g, "-")
         .replace(/[^a-z0-9-]/g, ""),
     );
+  }
+
+  function autoEditSlug(value) {
+    setEditName(value);
+    setEditSlug(
+      value
+        .toLowerCase()
+        .replace(/\s+/g, "-")
+        .replace(/[^a-z0-9-]/g, ""),
+    );
+  }
+
+  function handleEditOpen(cat) {
+    setEditingId(cat.id);
+    setEditName(cat.name);
+    setEditSlug(cat.slug);
+    setEditError("");
+  }
+
+  function handleEditSubmit(e) {
+    e.preventDefault();
+    if (!editName.trim() || !editSlug.trim()) return;
+    editCategory.mutate({ id: editingId, data: { name: editName, slug: editSlug } });
   }
 
   const categories = data?.categories || [];
@@ -114,37 +155,79 @@ export default function AdminCategoriesPage() {
         {isLoading && (
           <div className="space-y-2">
             {[...Array(4)].map((_, i) => (
-              <div
-                key={i}
-                className="h-12 bg-gray-100 rounded-lg animate-pulse"
-              />
+              <div key={i} className="h-12 bg-gray-100 rounded-lg animate-pulse" />
             ))}
           </div>
         )}
         <div className="space-y-2">
           {categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div>
-                <p className="text-sm font-medium text-gray-800">{cat.name}</p>
-                <p className="text-xs text-gray-400">/category/{cat.slug}</p>
-              </div>
-              <button
-                onClick={() => {
-                  if (
-                    window.confirm(
-                      `Delete "${cat.name}"? Posts in this category will be affected.`,
-                    )
-                  ) {
-                    deleteCategory.mutate(cat.id);
-                  }
-                }}
-                className="text-xs text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg transition"
-              >
-                Delete
-              </button>
+            <div key={cat.id}>
+              {editingId === cat.id ? (
+                // ── EDIT MODE ROW ──────────────────────────
+                <div className="p-3 bg-blue-50 rounded-lg border border-blue-100">
+                  <form onSubmit={handleEditSubmit} className="space-y-2">
+                    <input
+                      value={editName}
+                      onChange={(e) => autoEditSlug(e.target.value)}
+                      className="input w-full text-sm"
+                      placeholder="Category name"
+                      required
+                    />
+                    <input
+                      value={editSlug}
+                      onChange={(e) => setEditSlug(e.target.value)}
+                      className="input w-full text-sm"
+                      placeholder="slug"
+                      required
+                    />
+                    {editError && (
+                      <p className="text-xs text-red-500">{editError}</p>
+                    )}
+                    <div className="flex gap-2">
+                      <button
+                        type="submit"
+                        disabled={editCategory.isPending}
+                        className="btn-primary text-xs px-3 py-1.5"
+                      >
+                        {editCategory.isPending ? "Saving..." : "Save"}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setEditingId(null)}
+                        className="btn-ghost text-xs px-3 py-1.5"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              ) : (
+                // ── VIEW MODE ROW ──────────────────────────
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div>
+                    <p className="text-sm font-medium text-gray-800">{cat.name}</p>
+                    <p className="text-xs text-gray-400">/category/{cat.slug}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleEditOpen(cat)}
+                      className="text-xs text-blue-500 hover:bg-blue-50 px-3 py-1 rounded-lg transition"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (window.confirm(`Delete "${cat.name}"? Posts in this category will be affected.`)) {
+                          deleteCategory.mutate(cat.id);
+                        }
+                      }}
+                      className="text-xs text-red-500 hover:bg-red-50 px-3 py-1 rounded-lg transition"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           ))}
         </div>
