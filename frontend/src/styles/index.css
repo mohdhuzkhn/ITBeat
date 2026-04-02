@@ -36,3 +36,10 @@
     @apply inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium;
   }
 }
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
