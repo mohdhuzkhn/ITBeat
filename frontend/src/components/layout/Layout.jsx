@@ -45,7 +45,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
-        <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
+        <div className="max-w-6xl mx-auto px-3 h-14 flex items-center justify-between gap-1 w-full">
 
           {/* Logo */}
           <Link
@@ -128,7 +128,7 @@ export default function Layout() {
           </div>
 
           {/* Mobile right side */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-1">
             {user && <NotificationBell />}
             {user && (
               <Link to="/submit" className="btn-primary text-xs px-3 py-1.5">
