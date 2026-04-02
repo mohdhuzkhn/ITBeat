@@ -147,4 +147,27 @@ router.delete(
   },
 );
 
+router.patch(
+  "/categories/:id",
+  requireRole("admin"),
+  async (req, res, next) => {
+    try {
+      const { name, slug } = req.body;
+      if (!name || !slug)
+        return res.status(400).json({ error: "Name and slug required." });
+      const { rows } = await pool.query(
+        "UPDATE categories SET name = $1, slug = $2 WHERE id = $3 RETURNING *",
+        [name, slug.toLowerCase().replace(/\s+/g, "-"), req.params.id],
+      );
+      if (!rows[0])
+        return res.status(404).json({ error: "Category not found." });
+      res.json({ category: rows[0] });
+    } catch (err) {
+      if (err.code === "23505")
+        return res.status(409).json({ error: "Category slug already exists." });
+      next(err);
+    }
+  },
+);
+
 module.exports = router;
