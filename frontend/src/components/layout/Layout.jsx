@@ -44,9 +44,8 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm w-full">
         <div className="max-w-6xl mx-auto px-3 h-14 flex items-center justify-between gap-1 w-full">
-
           {/* Logo */}
           <Link
             to="/"
